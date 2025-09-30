@@ -16,7 +16,7 @@ if [ ! -f "$XML_FILE" ]; then
 fi
 
 # Extract Key tag values and save to links.txt
-grep -oP '<Key>\K[^<]*' "$XML_FILE" > links.txt
+grep -oP '<Key>\K[^<]*' "$XML_FILE" > links2.txt
 
 echo "Key values extracted to links.txt"
-echo "Total keys found: $(wc -l < links.txt)"
+echo "Total keys found: $(wc -l < links2.txt)"

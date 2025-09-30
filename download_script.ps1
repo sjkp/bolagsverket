@@ -1,7 +1,7 @@
 # PowerShell script to process top 10 lines from links.txt
 # For each line, call cz ls on the URL and append results to database.txt
 
-$linksFile = "links.txt"
+$linksFile = "links2.txt"
 $outputFile = "database.txt"
 $baseUrl = "https://vardefulla-datamangder.bolagsverket.se/arsredovisningar-bulkfiler/"
 

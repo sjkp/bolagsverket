@@ -123,6 +123,76 @@ public sealed class BolagsverketTool
     }
    
 
+    [McpServerTool, Description("Check which years have annual reports available for a specific organization without downloading them")]
+    public static string CheckAvailableYears(
+        [Description("Organization number (e.g. 559190-0047)")] string organizationId)
+    {
+        if (string.IsNullOrWhiteSpace(organizationId))
+        {
+            return "Error: Organization ID cannot be empty";
+        }
+
+        string filePath = Settings.LookupTableFilePath;
+
+        if (!File.Exists(filePath))
+        {
+            return $"Error: Lookup table file not found at {filePath}";
+        }
+
+        // Normalize the organization ID by removing dashes
+        string normalizedOrgId = organizationId.Replace("-", "");
+
+        var availableYears = new SortedSet<int>();
+
+        try
+        {
+            using (var reader = new StreamReader(filePath))
+            {
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    // Skip "Processing:" lines
+                    if (line.StartsWith("Processing: "))
+                        continue;
+
+                    // Look for lines containing the organization ID
+                    // Format: filename like "5560864414_2019-06-30.zip"
+                    if (line.Contains(normalizedOrgId + "_"))
+                    {
+                        // Extract the filename from the line (it's at the end after tabs)
+                        int lastTabIndex = line.LastIndexOf('\t');
+                        if (lastTabIndex > 0)
+                        {
+                            string filename = line.Substring(lastTabIndex + 1).Trim();
+
+                            // Extract year from filename pattern: orgId_YYYY-MM-DD.zip
+                            var match = Regex.Match(filename, normalizedOrgId + @"_(\d{4})-\d{2}-\d{2}\.zip");
+                            if (match.Success && match.Groups.Count > 1)
+                            {
+                                if (int.TryParse(match.Groups[1].Value, out int year))
+                                {
+                                    availableYears.Add(year);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (availableYears.Count == 0)
+            {
+                return $"No annual reports found for organization {organizationId}";
+            }
+
+            return $"Organization {organizationId} has annual reports available for the following years:\n" +
+                   string.Join(", ", availableYears);
+        }
+        catch (Exception ex)
+        {
+            return $"Error reading lookup table: {ex.Message}";
+        }
+    }
+
     [McpServerTool, Description("Get the annual report for a specific company and year")]
     public static string GetAnnualReport(
         [Description("Organization number (e.g. 559190-0047)")] string organizationId,
@@ -134,7 +204,7 @@ public sealed class BolagsverketTool
 
         var res = SearchWithContext(organizationId, year);
 
-        if (res != null)
+        if (res != null && res.Count > 0)
         {
             var s = res.FirstOrDefault().Split(" ");
             var outputPath = System.IO.Path.Combine(Directory.CreateTempSubdirectory("bolagsverket").FullName, s.ElementAt(1));

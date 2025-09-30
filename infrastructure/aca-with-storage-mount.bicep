@@ -13,7 +13,7 @@ param memorySize string = '2'
 @description('Minimum number of replicas that will be deployed')
 @minValue(0)
 @maxValue(25)
-param minReplicas int = 0
+param minReplicas int = 1
 
 @description('Maximum number of replicas that will be deployed')
 @minValue(0)
@@ -73,7 +73,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
     configuration: {      
       ingress: {        
         external: true
-        targetPort: 6333
+        targetPort: 8080
         allowInsecure: false
         traffic: [
           {
@@ -94,7 +94,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
       containers: [
         {          
           name: 'ca-${name}-mcp'
-          image: 'ghcr.io/sjkp/blitz-embed:latest'
+          image: 'ghcr.io/sjkp/bolagsverket:latest'
           resources: {
             cpu: json(cpuCore)
             memory: '${memorySize}Gi'

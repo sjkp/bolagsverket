@@ -7,6 +7,13 @@ devtunnel host -a -p 3001
 
  docker run -it --rm --name bolagsverket-mcp -p 8080:8080 -e SqliteDatabasePath=/app/data/bolagsverket.db -e LookupTableFilePath=/app/data/database.txt -e CloudZipFilePath=/usr/local/bin/cz -v c:/projects/bolagsverket/data:/app/data sjkp/bolagsverketmcp
 
+
+  "bolagsverket": {
+            "type": "streamable-http",
+            "url": "https://ca-sjkpbolagsverket-mcp.icyflower-fc0981ef.northeurope.azurecontainerapps.io//bolagsverket",
+            "note": "For Streamable HTTP connections, add this URL directly in your MCP Client"
+        }
+
 This sample demonstrates how to create an MCP (Model Context Protocol) server that provides different sets of tools based on route-based session configuration. This showcases the technique of using `ConfigureSessionOptions` to dynamically modify the `ToolCollection` based on route parameters for each MCP session.
 
 ## Overview
